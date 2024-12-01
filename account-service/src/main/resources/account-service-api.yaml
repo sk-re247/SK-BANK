@@ -1,0 +1,193 @@
+openapi: 3.0.0
+info:
+  title: Account Service API Documentation
+  description: Account Service API Documentation for Swagger Codegen
+  version: 25.1.0
+  contact:
+    name: "Somukumar"
+    email: "somukumar.ekambaram@gmail.com"
+
+servers:
+  - url: http://localhost:8081/AccountService
+    description: Local server
+
+tags:
+  - name: SK-BANK-Accounts
+    description: Everything about SK Bank Accounts
+
+paths:
+  /account:
+    post:
+      summary: API to create new account for customer
+      operationId: createNewAccount
+      tags:
+        - SK-BANK-Accounts
+      requestBody:
+        description: Optional description in *Markdown*
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountRequest"
+      responses:
+        "201":
+          description: 201 OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        "400":
+          description: 400 BAD REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        "401":
+          description: 401 UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+
+        "500":
+          description: 500 INTERNAL SERVER ERROR
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+
+
+    get:
+      operationId: hello
+      tags:
+        - SK-BANK-Accounts
+      responses:
+        "201":
+          description: 201 OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+
+    BadRequestErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        code:
+          type: string
+        message:
+          type: string
+          default: Invalid Request
+
+    UnauthorizedErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        message:
+          type: string
+          default: Unauthorized Request
+
+    InternalServerErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        message:
+          type: string
+          default: Internal Server Error
+
+    AccountRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        middleName:
+          type: string
+        lastBame:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        mobileNumber:
+          type: integer
+          format: int32
+          maxLength: 10
+          minLength: 10
+        email:
+          type: string
+          format: email
+        age:
+          type: integer
+        gender:
+          $ref: '#/components/schemas/GenderEnum'
+        branchName:
+          type: string
+        accountType:
+          $ref: '#/components/schemas/AccountTypeEnum'
+        customerAddress:
+          $ref: '#/components/schemas/Address'
+
+    AccountResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - properties:
+            data:
+              $ref: '#/components/schemas/AccountPayload'
+
+    AccountPayload:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+
+    Address:
+      type: object
+      properties:
+        doorNo:
+          type: string
+        addressLineOne:
+          type: string
+        addressLineTwo:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pinCode:
+          type: integer
+        usage:
+          $ref: '#/components/schemas/AddressUsageEnum'
+
+    AccountTypeEnum:
+      type: string
+      enum: [SAVINGS, CURRENT, SALARY]
+
+    AddressUsageEnum:
+      type: string
+      enum: [BRANCH, CUSTOMER]
+
+    GenderEnum:
+      type: string
+      enum: [MALE, FEMALE, TRANSGENDER]
