@@ -15,5 +15,7 @@ public interface AccountLogRepository extends JpaRepository<AccountLog, Long> {
             "ORDER BY al.updated_at DESC LIMIT 1", nativeQuery = true)
     AbstractAccountNumber findLastCreatedAccountNumber();
 
-    Optional<AccountLog> findByStatusIgnoreCaseAndAccountAccountNumber(String status, String accountNumber);
+    // Optional<AccountLog> findByStatusIgnoreCaseAndAccountAccountNumber(String status, String accountNumber);
+
+    Optional<AccountLog> findByStatusIgnoreCaseAndAccountAccountNumberAndAccountIsActive(String status, String accountNumber, boolean isActive);
 }

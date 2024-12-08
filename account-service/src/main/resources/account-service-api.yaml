@@ -23,7 +23,7 @@ paths:
       tags:
         - SK-BANK-Accounts
       requestBody:
-        description: Optional description in *Markdown*
+        description: Request body to create new account
         required: true
         content:
           application/json:
@@ -56,19 +56,55 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalServerErrorResponse'
 
-
-    get:
-      operationId: hello
+  /account/upload-proof:
+    put:
+      operationId: uploadAccountProof
+      summary: API to upload customer proof to activate the account
       tags:
         - SK-BANK-Accounts
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Request body to upload customer proof to activate the account
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUploadProofRequest'
       responses:
         "201":
           description: 201 OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountResponse'
+                $ref: '#/components/schemas/AccountUploadProofResponse'
+        "400":
+          description: 400 BAD REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        "401":
+          description: 401 UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+
+        "500":
+          description: 500 INTERNAL SERVER ERROR
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
 components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
 
     SuccessResponse:
@@ -156,6 +192,11 @@ components:
       properties:
         accountNumber:
           type: string
+        custId:
+          type: integer
+          format: int64
+        accessToken:
+          type: string
 
     Address:
       type: object
@@ -182,6 +223,45 @@ components:
         usage:
           $ref: '#/components/schemas/AddressUsageEnum'
 
+    AccountUploadProofRequest:
+      type: object
+      required:
+        - accountNumber
+        - file
+        - proofType
+      properties:
+        accountNumber:
+          type: string
+        file:
+          type: string
+          format: base64
+        proofType:
+          $ref: '#/components/schemas/AccountProofTypeEnum'
+
+    AccountUploadProofResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+    JwtPayload:
+      type: object
+      properties:
+        lastName:
+          type: string
+        accountNumber:
+          type: string
+        custId:
+          type: integer
+          format: int64
+        mobileNumber:
+          type: string
+        accountType:
+          type: string
+        branchName:
+          type: string
+
+
     AccountTypeEnum:
       type: string
       enum: [SAVINGS, CURRENT, SALARY]
@@ -193,3 +273,7 @@ components:
     GenderEnum:
       type: string
       enum: [MALE, FEMALE, TRANSGENDER]
+
+    AccountProofTypeEnum:
+      type: string
+      enum: [AADHAR, PAN, D]

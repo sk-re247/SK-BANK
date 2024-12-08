@@ -1,10 +1,14 @@
 package com.skcorp.skbank.account_service.common;
 
+import com.skcorp.skbank.account_service.client.models.AccountPayload;
+import com.skcorp.skbank.account_service.client.models.AccountProofTypeEnum;
 import com.skcorp.skbank.account_service.client.models.AccountRequest;
 import com.skcorp.skbank.account_service.client.models.AccountTypeEnum;
 import com.skcorp.skbank.account_service.client.models.AddressUsageEnum;
 import com.skcorp.skbank.account_service.client.models.GenderEnum;
+import com.skcorp.skbank.account_service.client.models.JwtPayload;
 import com.skcorp.skbank.account_service.common.dtos.AccountNumberCustomerId;
+import com.skcorp.skbank.account_service.common.utils.JwtUtil;
 import com.skcorp.skbank.account_service.entities.projections.AbstractAccountNumber;
 import com.skcorp.skbank.account_service.entities.Account;
 import com.skcorp.skbank.account_service.entities.AccountLog;
@@ -35,42 +39,47 @@ public class GlobalServiceHelper {
 
     private final AccountProofRepository accountProofRepository;
 
+    private final JwtUtil jwtUtil;
+
     public GlobalServiceHelper(
             BranchNameAddressXrefRepository branchNameAddressXrefRepository,
             AccountRepository accountRepository,
             AccountLogRepository accountLogRepository,
-            AccountProofRepository accountProofRepository) {
+            AccountProofRepository accountProofRepository,
+            JwtUtil jwtUtil) {
         this.branchNameAddressXrefRepository = branchNameAddressXrefRepository;
         this.accountRepository = accountRepository;
         this.accountLogRepository = accountLogRepository;
         this.accountProofRepository = accountProofRepository;
+        this.jwtUtil = jwtUtil;
     }
 
 
-    public void validateMobileNumber(String mobileNumber) {
-        String regex = "^[0-9]{10}$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(mobileNumber.trim());
-        if (!matcher.matches()) {
-            throw new AccountServiceException("INVALID_MOBILE_NUMBER", "The provided mobile number is Invalid. It should have only 10 digits and should have numbers only");
-        }
-    }
+//    public void validateMobileNumber(String mobileNumber) {
+//        String regex = "^[0-9]{10}$";
+//        Pattern pattern = Pattern.compile(regex);
+//        Matcher matcher = pattern.matcher(mobileNumber.trim());
+//        if (!matcher.matches()) {
+//            throw new AccountServiceException("INVALID_MOBILE_NUMBER", "The provided mobile number is Invalid. It should have only 10 digits and should have numbers only");
+//        }
+//    }
+//
+//    public void validateEmailAddress(String email) {
+//        String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+//        Pattern pattern = Pattern.compile(regex);
+//        Matcher matcher = pattern.matcher(email);
+//        if (!matcher.matches()) {
+//            throw new AccountServiceException("INVALID_EMAIL_ADDRESS", "The provided email address is invalid. The format may invalid");
+//        }
+//    }
 
-    public void validateEmailAddress(String email) {
-        String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(email);
-        if (!matcher.matches()) {
-            throw new AccountServiceException("INVALID_EMAIL_ADDRESS", "The provided email address is invalid. The format may invalid");
-        }
-    }
-
-    public String createNewAccount(AccountRequest accountRequest) {
+    public AccountPayload createNewAccount(AccountRequest accountRequest) {
+        AccountPayload payload = new AccountPayload();
         try {
             AccountTypeEnum typeEnum = accountRequest.getAccountType();
             String branchName = accountRequest.getBranchName().trim();
             BranchNameAddressXref branchNameAddressXref = branchNameAddressXrefRepository.findByBranchNameIgnoreCase(branchName)
-                    .orElseThrow(() -> new AccountServiceException("BRANCH_NAME_NOT_FOUND", "The selected branch name does not exist"));
+                    .orElseThrow(() -> new AccountServiceException("The selected branch name does not exist"));
 
             com.skcorp.skbank.account_service.client.models.Address customerRequestAddress = accountRequest.getCustomerAddress();
             AddressUsageEnum addressUsageEnum = customerRequestAddress.getUsage();
@@ -128,12 +137,27 @@ public class GlobalServiceHelper {
 
             AccountLog savedAccount = accountLogRepository.save(accountLog);
 
-            return savedAccount.getAccount().getAccountNumber();
+            String savedAccNo = savedAccount.getAccount().getAccountNumber();
+            Long custId = savedAccount.getAccount().getCustomer().getId();
+            payload.setCustId(custId);
+            payload.setAccountNumber(savedAccNo);
+
+            JwtPayload jwtPayload = new JwtPayload();
+            jwtPayload.setAccountNumber(savedAccNo);
+            jwtPayload.setAccountType(savedAccount.getAccount().getType());
+            jwtPayload.setBranchName(branchName);
+            jwtPayload.setCustId(custId);
+            jwtPayload.setLastName(savedAccount.getAccount().getCustomer().getLastName());
+            jwtPayload.setMobileNumber(savedAccount.getAccount().getCustomer().getMobileNumber());
+
+            String token = jwtUtil.generateToken(jwtPayload);
+            payload.setAccessToken(token);
         } catch (AccountServiceException serviceException) {
             throw serviceException;
         } catch (Exception exception) {
             throw exception;
         }
+        return payload;
     }
 
     private AccountNumberCustomerId generateAccountNumberAndCustomerId(String lastGeneratedId) {
@@ -168,21 +192,20 @@ public class GlobalServiceHelper {
         return accountNumberCustomerId;
     }
 
-    public AccountLog fetchExistingAccountLog(String accountNumber, String status) {
-
-        AccountLog accountLog = accountLogRepository.findByStatusIgnoreCaseAndAccountAccountNumber(status, accountNumber)
-                .orElseThrow(() -> new AccountServiceException("ACCOUNT_NOT_FOUND", "The provided account has not initiated yet."));
-
+    public AccountLog checkAccountHasValidLog(String accountNumber, String status, boolean isActive) {
+        String error = "The Provided * account number is not found";
+        AccountLog accountLog = accountLogRepository.findByStatusIgnoreCaseAndAccountAccountNumberAndAccountIsActive(status, accountNumber, isActive)
+                .orElseThrow(() -> new AccountServiceException(error.replace("*", accountNumber)));
         return accountLog;
     }
 
-    public void uploadProof(byte[] form, String type, Account account) {
+    public void uploadProof(byte[] file, AccountProofTypeEnum proofTypeEnum, Account account) {
 
         try {
             AccountProof accountProof = new AccountProof();
             accountProof.setAccount(account);
-            accountProof.setForm(form);
-            accountProof.setType(type);
+            accountProof.setForm(file);
+            accountProof.setType(proofTypeEnum.toString());
 
             accountProofRepository.save(accountProof);
         } catch (Exception e) {
@@ -190,7 +213,13 @@ public class GlobalServiceHelper {
         }
     }
 
-    public void updateAccountLogs(List<AccountLog> accountLogs) {
-        accountLogRepository.saveAll(accountLogs);
+    public void updateAccountLog(Account account, String status) {
+
+        AccountLog updatedAccountLog = new AccountLog();
+        updatedAccountLog.setAccount(account);
+        updatedAccountLog.setStatus(status);
+        updatedAccountLog.setUpdatedAt(LocalDateTime.now());
+
+        accountLogRepository.save(updatedAccountLog);
     }
 }
