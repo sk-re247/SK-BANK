@@ -1,4 +1,4 @@
-package com.skcorp.skbank.account_service.common.projections;
+package com.skcorp.skbank.account_service.entities.projections;
 
 public interface AbstractAccountNumber {
 

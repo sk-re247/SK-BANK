@@ -38,6 +38,4 @@ public class AccountLog {
     private String status;
 
     private LocalDateTime updatedAt;
-
-    private Boolean isActive;
 }

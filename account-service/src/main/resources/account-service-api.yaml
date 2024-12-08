@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: Account Service API Documentation
   description: Account Service API Documentation for Swagger Codegen
@@ -69,13 +69,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccountResponse'
 components:
-
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-
   schemas:
 
     SuccessResponse:
@@ -83,6 +76,7 @@ components:
       properties:
         success:
           type: boolean
+          default: true
         data:
           type: object
 
@@ -92,8 +86,6 @@ components:
         success:
           type: boolean
           default: false
-        code:
-          type: string
         message:
           type: string
           default: Invalid Request
@@ -120,26 +112,29 @@ components:
 
     AccountRequest:
       type: object
+      required:
+        - lastName
+        - dateOfBirth
+        - mobileNumber
+        - gender
+        - branchName
+        - accountType
+        - customerAddress
       properties:
         firstName:
           type: string
-        middleName:
-          type: string
-        lastBame:
+        lastName:
           type: string
         dateOfBirth:
           type: string
           format: date
         mobileNumber:
-          type: integer
-          format: int32
+          type: string
           maxLength: 10
           minLength: 10
         email:
           type: string
           format: email
-        age:
-          type: integer
         gender:
           $ref: '#/components/schemas/GenderEnum'
         branchName:
@@ -164,6 +159,13 @@ components:
 
     Address:
       type: object
+      required:
+        - doorNo
+        - addressLineOne
+        - city
+        - state
+        - pinCode
+        - usage
       properties:
         doorNo:
           type: string

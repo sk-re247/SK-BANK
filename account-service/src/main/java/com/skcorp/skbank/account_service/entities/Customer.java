@@ -30,13 +30,9 @@ public class Customer {
 
     private String firstName;
 
-    private String middleName;
-
     private String lastName;
 
     private LocalDate dateOfBirth;
-
-    private Integer age;
 
     private Character gender;
 

@@ -39,4 +39,6 @@ public class Account {
     private Address branchAddress;
 
     private String type;
+
+    private Boolean isActive;
 }

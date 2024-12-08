@@ -1,19 +1,16 @@
 package com.skcorp.skbank.account_service.controllers;
 
-import com.skcorp.skbank.account_service.common.dtos.AccountRequest;
-import com.skcorp.skbank.account_service.common.dtos.AccountResponse;
+import com.skcorp.skbank.account_service.client.api.SkBankAccountsApi;
+import com.skcorp.skbank.account_service.client.models.AccountRequest;
+import com.skcorp.skbank.account_service.client.models.AccountResponse;
 import com.skcorp.skbank.account_service.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/account")
-public class AccountController {
+public class AccountController implements SkBankAccountsApi {
 
     private final AccountService accountService;
 
@@ -22,8 +19,9 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @PostMapping
-    public ResponseEntity<AccountResponse> createNewAccount(@RequestBody AccountRequest request) {
+
+    @Override
+    public ResponseEntity<AccountResponse> createNewAccount(AccountRequest request) {
 
         AccountResponse response = accountService.createAccount(request);
 

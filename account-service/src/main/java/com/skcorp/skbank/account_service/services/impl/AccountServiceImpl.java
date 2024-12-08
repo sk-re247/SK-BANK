@@ -1,14 +1,13 @@
 package com.skcorp.skbank.account_service.services.impl;
 
+import com.skcorp.skbank.account_service.client.models.AccountPayload;
+import com.skcorp.skbank.account_service.client.models.AccountRequest;
+import com.skcorp.skbank.account_service.client.models.AccountResponse;
 import com.skcorp.skbank.account_service.common.GlobalServiceHelper;
-import com.skcorp.skbank.account_service.common.dtos.AccountRequest;
-import com.skcorp.skbank.account_service.common.dtos.AccountResponse;
-import com.skcorp.skbank.account_service.common.dtos.Address;
-import com.skcorp.skbank.account_service.exceptions.AccountServiceException;
 import com.skcorp.skbank.account_service.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -20,53 +19,50 @@ public class AccountServiceImpl implements AccountService {
         this.globalServiceHelper = globalServiceHelper;
     }
 
-
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public AccountResponse createAccount(AccountRequest accountRequest) {
         AccountResponse response = new AccountResponse();
+        AccountPayload payload = new AccountPayload();
         String accountNumber = null;
-        String errorMessage = "The * must not be a Empty or Nul";
         try {
-
-            if (!StringUtils.hasLength(accountRequest.getLastName())) {
-                throw new AccountServiceException("INVALID_LAST_NAME", errorMessage.replace("*", "last name"));
-            }
-
-            if (!StringUtils.hasLength(accountRequest.getGender())) {
-                throw new AccountServiceException("INVALID_GENDER", errorMessage.replace("*", "gender"));
-            }
-
-            if (!StringUtils.hasLength(accountRequest.getBranchName())) {
-                throw new AccountServiceException("INVALID_BRANCH_NAME", errorMessage.replace("*", "branch name"));
-            }
-
-            if (!StringUtils.hasLength(accountRequest.getAccountType())) {
-                throw new AccountServiceException("INVALID_ACCOUNT_TYPE", errorMessage.replace("*", "account type"));
-            }
-
-            globalServiceHelper.validateMobileNumber(accountRequest.getMobileNumber());
-
-            if (StringUtils.hasLength(accountRequest.getEmail())) {
-                globalServiceHelper.validateEmailAddress(accountRequest.getEmail());
-            }
-
-            Address customerAddress = accountRequest.getCustomerAddress();
-
-            if (!StringUtils.hasLength(customerAddress.getDoorNo()) || !StringUtils.hasLength(customerAddress.getAddressLineOne()) ||
-                    !StringUtils.hasLength(customerAddress.getCity()) || !StringUtils.hasLength(customerAddress.getState()) ||
-                    !StringUtils.hasLength(customerAddress.getUsage()) || customerAddress.getPinCode() == null) {
-                throw new AccountServiceException("INVALID_ADDRESS", errorMessage.replace("*", "customer address"));
-            }
-
             accountNumber = globalServiceHelper.createNewAccount(accountRequest);
-            response.setAccountNumber(accountNumber);
-
-        } catch (AccountServiceException serviceException) {
-            throw serviceException;
-        } catch (Exception exception) {
-            throw new AccountServiceException(exception.getMessage());
+            payload.setAccountNumber(accountNumber);
+            response.setAccountResponseData(payload);
+        } catch (Exception e) {
+            throw e;
         }
-
         return response;
     }
+
+//    @Override
+//    @Transactional(rollbackFor = Exception.class)
+//    public void uploadAccountProof(AccountProofRequest request) {
+//
+//        try {
+//            String accountNumber = request.getAccountNumber();
+//            AccountLog accountLog = globalServiceHelper.fetchExistingAccountLog(accountNumber, "INITIATED");
+//
+//            byte[] form = Base64.getDecoder().decode(request.getForm());
+//
+//            Account account = accountLog.getAccount();
+//            account.setIsActive(true);
+//
+//            globalServiceHelper.uploadProof(form, request.getType(), account);
+//
+//            AccountLog newUpdatedLog = new AccountLog();
+//            newUpdatedLog.setAccount(account);
+//            newUpdatedLog.setUpdatedAt(LocalDateTime.now());
+//            newUpdatedLog.setStatus("ACTIVATED");
+//
+//            List<AccountLog> accountLogs = Arrays.asList(accountLog, newUpdatedLog);
+//
+//            globalServiceHelper.updateAccountLogs(accountLogs);
+//        } catch (AccountServiceException serviceException) {
+//            throw serviceException;
+//        } catch (Exception exception) {
+//            throw new AccountServiceException("Something went wrong");
+//        }
+//
+//    }
 }
