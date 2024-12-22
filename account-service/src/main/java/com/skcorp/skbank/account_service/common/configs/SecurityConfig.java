@@ -1,9 +1,11 @@
 package com.skcorp.skbank.account_service.common.configs;
 
-import com.skcorp.skbank.account_service.security.JwtRequestFilter;
+import com.skcorp.skbank.account_service.common.utils.JwtUtil;
+import com.skcorp.skbank.account_service.security.SKBankCustomerAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -17,12 +19,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    private final JwtRequestFilter jwtRequestFilter;
+    private final SKBankCustomerAuthenticationFilter skBankCustomerAuthenticationFilter;
 
     @Autowired
-    public SecurityConfig(
-            JwtRequestFilter jwtRequestFilter) {
-        this.jwtRequestFilter = jwtRequestFilter;
+    public SecurityConfig(@Lazy SKBankCustomerAuthenticationFilter skBankCustomerAuthenticationFilter) {
+        this.skBankCustomerAuthenticationFilter = skBankCustomerAuthenticationFilter;
     }
 
     @Bean
@@ -33,13 +34,14 @@ public class SecurityConfig {
                 .disable()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/account").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/account/upload-proof").permitAll()
                         .anyRequest()
                         .authenticated()
                 )
+                .cors()
+                .disable()
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(skBankCustomerAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
@@ -47,6 +49,11 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public SKBankCustomerAuthenticationFilter skBankCustomerAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+        return new SKBankCustomerAuthenticationFilter(authenticationManager, jwtUtil);
     }
 
     @Bean

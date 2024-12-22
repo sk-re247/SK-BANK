@@ -1,5 +1,6 @@
 package com.skcorp.skbank.account_service.services.impl;
 
+import com.skcorp.skbank.account_service.client.models.AccountAuthentication;
 import com.skcorp.skbank.account_service.client.models.AccountPayload;
 import com.skcorp.skbank.account_service.client.models.AccountProofTypeEnum;
 import com.skcorp.skbank.account_service.client.models.AccountRequest;
@@ -42,7 +43,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void uploadAccountProof(AccountUploadProofRequest request) {
+    public String uploadAccountProof(AccountUploadProofRequest request) {
+        String generatedPassword = null;
         try {
             String accountNumber = request.getAccountNumber();
             byte[] file = Base64.getDecoder().decode(request.getFile());
@@ -57,8 +59,26 @@ public class AccountServiceImpl implements AccountService {
 
             globalServiceHelper.updateAccountLog(account, "ACTIVATED");
 
+            // generate random account password and store it in DB
+            generatedPassword = globalServiceHelper.updateAccountSecurity(account, 10);
         } catch (Exception exception) {
             throw new AccountServiceException(exception.getMessage());
+        }
+
+        return generatedPassword;
+    }
+
+    @Override
+    @Transactional(rollbackFor = { Exception.class})
+    public void updateAccountSecurity(AccountAuthentication accountAuthentication) {
+
+        Account account = globalServiceHelper.fetchAccountByAccountNumber(accountAuthentication.getAccountNumber());
+        String password = accountAuthentication.getPassword();
+
+        if (password.length() >= 10 && password.length() <= 15) {
+            globalServiceHelper.updateAccountSecurity(account, password);
+        } else {
+            throw new AccountServiceException("Password length must between 10 to 15");
         }
     }
 

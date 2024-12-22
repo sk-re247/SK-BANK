@@ -9,6 +9,8 @@ import com.skcorp.skbank.account_service.client.models.GenderEnum;
 import com.skcorp.skbank.account_service.client.models.JwtPayload;
 import com.skcorp.skbank.account_service.common.dtos.AccountNumberCustomerId;
 import com.skcorp.skbank.account_service.common.utils.JwtUtil;
+import com.skcorp.skbank.account_service.entities.AccountLoginHistory;
+import com.skcorp.skbank.account_service.entities.AccountSecurity;
 import com.skcorp.skbank.account_service.entities.projections.AbstractAccountNumber;
 import com.skcorp.skbank.account_service.entities.Account;
 import com.skcorp.skbank.account_service.entities.AccountLog;
@@ -18,17 +20,20 @@ import com.skcorp.skbank.account_service.entities.BranchNameAddressXref;
 import com.skcorp.skbank.account_service.entities.Customer;
 import com.skcorp.skbank.account_service.exceptions.AccountServiceException;
 import com.skcorp.skbank.account_service.repositories.AccountLogRepository;
+import com.skcorp.skbank.account_service.repositories.AccountLoginHistoryRepository;
 import com.skcorp.skbank.account_service.repositories.AccountProofRepository;
 import com.skcorp.skbank.account_service.repositories.AccountRepository;
+import com.skcorp.skbank.account_service.repositories.AccountSecurityRepository;
 import com.skcorp.skbank.account_service.repositories.BranchNameAddressXrefRepository;
+import jakarta.persistence.EntityManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class GlobalServiceHelper {
@@ -39,6 +44,12 @@ public class GlobalServiceHelper {
 
     private final AccountProofRepository accountProofRepository;
 
+    private final AccountSecurityRepository accountSecurityRepository;
+
+    private final AccountLoginHistoryRepository accountLoginHistoryRepository;
+
+    private final EntityManager entityManager;
+
     private final JwtUtil jwtUtil;
 
     public GlobalServiceHelper(
@@ -46,12 +57,18 @@ public class GlobalServiceHelper {
             AccountRepository accountRepository,
             AccountLogRepository accountLogRepository,
             AccountProofRepository accountProofRepository,
-            JwtUtil jwtUtil) {
+            AccountSecurityRepository accountSecurityRepository,
+            JwtUtil jwtUtil,
+            AccountLoginHistoryRepository accountLoginHistoryRepository,
+            EntityManager entityManager) {
         this.branchNameAddressXrefRepository = branchNameAddressXrefRepository;
         this.accountRepository = accountRepository;
         this.accountLogRepository = accountLogRepository;
         this.accountProofRepository = accountProofRepository;
+        this.accountSecurityRepository = accountSecurityRepository;
         this.jwtUtil = jwtUtil;
+        this.accountLoginHistoryRepository = accountLoginHistoryRepository;
+        this.entityManager = entityManager;
     }
 
 
@@ -145,7 +162,6 @@ public class GlobalServiceHelper {
             JwtPayload jwtPayload = new JwtPayload();
             jwtPayload.setAccountNumber(savedAccNo);
             jwtPayload.setAccountType(savedAccount.getAccount().getType());
-            jwtPayload.setBranchName(branchName);
             jwtPayload.setCustId(custId);
             jwtPayload.setLastName(savedAccount.getAccount().getCustomer().getLastName());
             jwtPayload.setMobileNumber(savedAccount.getAccount().getCustomer().getMobileNumber());
@@ -221,5 +237,65 @@ public class GlobalServiceHelper {
         updatedAccountLog.setUpdatedAt(LocalDateTime.now());
 
         accountLogRepository.save(updatedAccountLog);
+    }
+
+    private String generateRandomPassword(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+";
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int index = secureRandom.nextInt(characters.length());
+            password.append(characters.charAt(index));
+        }
+
+        return password.toString();
+    }
+
+    public String updateAccountSecurity(Account account, int passwordLength) {
+
+        AccountSecurity accountSecurity = new AccountSecurity();
+        accountSecurity.setAccount(account);
+        String password = generateRandomPassword(passwordLength);
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encryptedPassword = passwordEncoder.encode(password);
+        accountSecurity.setPassword(encryptedPassword);
+
+        accountSecurityRepository.save(accountSecurity);
+
+        return password;
+    }
+
+    public String updateAccountSecurity(Account account, String password) {
+
+        AccountSecurity accountSecurity = new AccountSecurity();
+        accountSecurity.setAccount(account);
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encryptedPassword = passwordEncoder.encode(password);
+        accountSecurity.setPassword(encryptedPassword);
+
+        accountSecurityRepository.save(accountSecurity);
+
+        return password;
+    }
+
+    public Account fetchAccountByAccountNumber(String accountNumber) {
+
+        return accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new AccountServiceException("Account Not Found"));
+    }
+
+    @Transactional
+    public void addAccountLoginEntry(Account account) {
+
+        try {
+            Account attachedAccount = entityManager.merge(account);
+            AccountLoginHistory loginHistory = new AccountLoginHistory();
+            loginHistory.setAccount(attachedAccount);
+            accountLoginHistoryRepository.save(loginHistory);
+        } catch (Exception exception) {
+            System.out.println(exception);
+            // do nothing
+        }
     }
 }

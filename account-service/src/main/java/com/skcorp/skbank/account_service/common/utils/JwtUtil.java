@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Component
 public class JwtUtil {
-    private final String SECRET_KEY = "b6ec65d4-0269-4c3d-b751-c896d06df66a";
+    private final String SECRET_KEY = "f3f7b1d7a1c687db5cfbbbf5a618f967b88bfa9efc6d17884eabef74d86a452f";
 
     public String generateToken(JwtPayload jwtPayload) {
         Map<String, String> claims = new HashMap<>();
@@ -24,7 +24,6 @@ public class JwtUtil {
         claims.put("lastName", jwtPayload.getLastName());
         claims.put("accountType", jwtPayload.getAccountType());
         claims.put("mobileNumber", jwtPayload.getMobileNumber());
-        claims.put("branchName", jwtPayload.getBranchName());
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(jwtPayload.getAccountNumber())

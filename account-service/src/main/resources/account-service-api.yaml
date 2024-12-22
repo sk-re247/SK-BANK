@@ -73,11 +73,96 @@ paths:
               $ref: '#/components/schemas/AccountUploadProofRequest'
       responses:
         "201":
-          description: 201 OK
+          description: 200 OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccountUploadProofResponse'
+        "400":
+          description: 400 BAD REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        "401":
+          description: 401 UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+
+        "500":
+          description: 500 INTERNAL SERVER ERROR
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+
+  /account/security:
+    put:
+      operationId: updateAccountSecurity
+      summary: API to storng the account's security
+      tags:
+        - SK-BANK-Accounts
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Request body to update account security to protect account
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountAuthentication'
+      responses:
+        "201":
+          description: 200 OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSecurityResponse'
+        "400":
+          description: 400 BAD REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        "401":
+          description: 401 UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+
+        "500":
+          description: 500 INTERNAL SERVER ERROR
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+
+  /account/login:
+    post:
+      operationId: loginAccount
+      summary: API to authenticate and login customer account
+      tags:
+        - SK-BANK-Accounts
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        description: Request body to update account security to protect account
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountAuthentication'
+      responses:
+        "201":
+          description: 200 OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountLoginResponse'
         "400":
           description: 400 BAD REQUEST
           content:
@@ -243,6 +328,30 @@ components:
       properties:
         message:
           type: string
+        generatedPassword:
+          type: string
+
+    AccountSecurityResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+    AccountAuthentication:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        password:
+          type: string
+
+    AccountLoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        message:
+          type: string
 
     JwtPayload:
       type: object
@@ -257,8 +366,6 @@ components:
         mobileNumber:
           type: string
         accountType:
-          type: string
-        branchName:
           type: string
 
 
