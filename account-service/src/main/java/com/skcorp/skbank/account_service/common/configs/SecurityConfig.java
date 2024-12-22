@@ -1,6 +1,7 @@
 package com.skcorp.skbank.account_service.common.configs;
 
 import com.skcorp.skbank.account_service.common.utils.JwtUtil;
+import com.skcorp.skbank.account_service.security.JwtAuthenticationFilter;
 import com.skcorp.skbank.account_service.security.SKBankCustomerAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,9 +22,15 @@ public class SecurityConfig {
 
     private final SKBankCustomerAuthenticationFilter skBankCustomerAuthenticationFilter;
 
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Autowired
-    public SecurityConfig(@Lazy SKBankCustomerAuthenticationFilter skBankCustomerAuthenticationFilter) {
+    public SecurityConfig(
+            @Lazy SKBankCustomerAuthenticationFilter skBankCustomerAuthenticationFilter,
+            JwtAuthenticationFilter jwtAuthenticationFilter
+            ) {
         this.skBankCustomerAuthenticationFilter = skBankCustomerAuthenticationFilter;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
@@ -42,6 +49,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         httpSecurity.addFilterBefore(skBankCustomerAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }

@@ -51,9 +51,6 @@ public class SKBankCustomerAuthenticationFilter extends AbstractAuthenticationPr
     @Override
     public void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
 
-
-
-
         String message = "Customer authentication was successful";
         AccountLoginResponse loginResponse = new AccountLoginResponse();
 
@@ -67,7 +64,6 @@ public class SKBankCustomerAuthenticationFilter extends AbstractAuthenticationPr
         payload.setCustId(account.getCustomer().getId());
         payload.setAccountType(account.getType());
         String token = jwtUtil.generateToken(payload);
-
 
         loginResponse.setAccessToken(token);
         loginResponse.setMessage(message);

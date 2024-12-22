@@ -37,6 +37,4 @@ public class AccountLoginHistory {
 
     @CreationTimestamp
     private LocalDateTime loginTime;
-
-    private Boolean isSuccess;
 }

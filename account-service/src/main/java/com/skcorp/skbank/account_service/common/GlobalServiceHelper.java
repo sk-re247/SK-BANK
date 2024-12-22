@@ -252,37 +252,18 @@ public class GlobalServiceHelper {
     }
 
     public String updateAccountSecurity(Account account, int passwordLength) {
-
         AccountSecurity accountSecurity = new AccountSecurity();
         accountSecurity.setAccount(account);
+
         String password = generateRandomPassword(passwordLength);
-
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encryptedPassword = passwordEncoder.encode(password);
+
         accountSecurity.setPassword(encryptedPassword);
 
         accountSecurityRepository.save(accountSecurity);
 
         return password;
-    }
-
-    public String updateAccountSecurity(Account account, String password) {
-
-        AccountSecurity accountSecurity = new AccountSecurity();
-        accountSecurity.setAccount(account);
-
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String encryptedPassword = passwordEncoder.encode(password);
-        accountSecurity.setPassword(encryptedPassword);
-
-        accountSecurityRepository.save(accountSecurity);
-
-        return password;
-    }
-
-    public Account fetchAccountByAccountNumber(String accountNumber) {
-
-        return accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new AccountServiceException("Account Not Found"));
     }
 
     @Transactional

@@ -9,9 +9,12 @@ import com.skcorp.skbank.account_service.client.models.AccountUploadProofRequest
 import com.skcorp.skbank.account_service.common.GlobalServiceHelper;
 import com.skcorp.skbank.account_service.entities.Account;
 import com.skcorp.skbank.account_service.entities.AccountLog;
+import com.skcorp.skbank.account_service.entities.AccountSecurity;
 import com.skcorp.skbank.account_service.exceptions.AccountServiceException;
+import com.skcorp.skbank.account_service.repositories.AccountSecurityRepository;
 import com.skcorp.skbank.account_service.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +25,14 @@ public class AccountServiceImpl implements AccountService {
 
     private final GlobalServiceHelper globalServiceHelper;
 
+    private final AccountSecurityRepository accountSecurityRepository;
+
     @Autowired
-    public AccountServiceImpl(GlobalServiceHelper globalServiceHelper) {
+    public AccountServiceImpl(
+            GlobalServiceHelper globalServiceHelper,
+            AccountSecurityRepository accountSecurityRepository) {
         this.globalServiceHelper = globalServiceHelper;
+        this.accountSecurityRepository = accountSecurityRepository;
     }
 
     @Override
@@ -72,11 +80,18 @@ public class AccountServiceImpl implements AccountService {
     @Transactional(rollbackFor = { Exception.class})
     public void updateAccountSecurity(AccountAuthentication accountAuthentication) {
 
-        Account account = globalServiceHelper.fetchAccountByAccountNumber(accountAuthentication.getAccountNumber());
+        AccountSecurity accountSecurity = accountSecurityRepository.findByAccount_AccountNumber(accountAuthentication.getAccountNumber());
         String password = accountAuthentication.getPassword();
 
         if (password.length() >= 10 && password.length() <= 15) {
-            globalServiceHelper.updateAccountSecurity(account, password);
+            if (accountSecurity == null) {
+                globalServiceHelper.updateAccountSecurity(accountSecurity.getAccount(), 10);
+            } else {
+                BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                String encryptedPassword = passwordEncoder.encode(password);
+                accountSecurity.setPassword(encryptedPassword);
+                accountSecurityRepository.save(accountSecurity);
+            }
         } else {
             throw new AccountServiceException("Password length must between 10 to 15");
         }
