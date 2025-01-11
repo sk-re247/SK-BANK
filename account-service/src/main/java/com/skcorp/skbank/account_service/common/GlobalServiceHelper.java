@@ -34,6 +34,7 @@ import org.springframework.util.StringUtils;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class GlobalServiceHelper {
@@ -278,5 +279,9 @@ public class GlobalServiceHelper {
             System.out.println(exception);
             // do nothing
         }
+    }
+
+    public Optional<AccountProof> getAccountProof(String acc) {
+        return accountProofRepository.findByAccount_AccountNumber(acc);
     }
 }

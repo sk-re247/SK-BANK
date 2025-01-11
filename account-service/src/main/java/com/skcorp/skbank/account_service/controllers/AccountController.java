@@ -2,6 +2,7 @@ package com.skcorp.skbank.account_service.controllers;
 
 import com.skcorp.skbank.account_service.client.api.SkBankAccountsApi;
 import com.skcorp.skbank.account_service.client.models.AccountAuthentication;
+import com.skcorp.skbank.account_service.client.models.AccountDetailsResponse;
 import com.skcorp.skbank.account_service.client.models.AccountRequest;
 import com.skcorp.skbank.account_service.client.models.AccountResponse;
 import com.skcorp.skbank.account_service.client.models.AccountSecurityResponse;
@@ -11,6 +12,7 @@ import com.skcorp.skbank.account_service.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,6 +32,14 @@ public class AccountController implements SkBankAccountsApi {
         AccountResponse response = accountService.createAccount(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Override
+    public ResponseEntity<AccountDetailsResponse> fetchAccountDetails(@RequestParam("accountNumber") String accountNumber) {
+
+        AccountDetailsResponse response = accountService.fetchAccountDetails(accountNumber);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Override

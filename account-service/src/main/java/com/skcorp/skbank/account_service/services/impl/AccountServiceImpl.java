@@ -1,6 +1,7 @@
 package com.skcorp.skbank.account_service.services.impl;
 
 import com.skcorp.skbank.account_service.client.models.AccountAuthentication;
+import com.skcorp.skbank.account_service.client.models.AccountDetailsResponse;
 import com.skcorp.skbank.account_service.client.models.AccountPayload;
 import com.skcorp.skbank.account_service.client.models.AccountProofTypeEnum;
 import com.skcorp.skbank.account_service.client.models.AccountRequest;
@@ -9,6 +10,7 @@ import com.skcorp.skbank.account_service.client.models.AccountUploadProofRequest
 import com.skcorp.skbank.account_service.common.GlobalServiceHelper;
 import com.skcorp.skbank.account_service.entities.Account;
 import com.skcorp.skbank.account_service.entities.AccountLog;
+import com.skcorp.skbank.account_service.entities.AccountProof;
 import com.skcorp.skbank.account_service.entities.AccountSecurity;
 import com.skcorp.skbank.account_service.exceptions.AccountServiceException;
 import com.skcorp.skbank.account_service.repositories.AccountSecurityRepository;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
+import java.util.Optional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -46,6 +49,21 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             throw e;
         }
+        return response;
+    }
+
+    @Override
+    public AccountDetailsResponse fetchAccountDetails(String accountNumber) {
+
+        Optional<AccountProof> accountProof = globalServiceHelper.getAccountProof(accountNumber);
+
+        byte[] bytes = accountProof.get().getForm();
+
+        String pdf = Base64.getEncoder().encodeToString(bytes);
+
+        AccountDetailsResponse response = new AccountDetailsResponse();
+        response.setPdf(pdf);
+
         return response;
     }
 

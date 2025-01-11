@@ -27,7 +27,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
         response.setStatus(statusCode);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        String message = statusCode == 500 ? "{\"message\": \"Internal Server error\"}" : "{\"message\": \"Bad Request\"}";
+        String message = statusCode == 500 ? "{\"message\": \"Internal Server error\"}" : "{\"message\": \"Bad Request or Unauthorized\"}";
         response.getWriter().write(message);
     }
 }

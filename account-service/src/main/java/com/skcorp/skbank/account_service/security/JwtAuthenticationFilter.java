@@ -1,6 +1,7 @@
 package com.skcorp.skbank.account_service.security;
 
 import com.skcorp.skbank.account_service.common.utils.JwtUtil;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -65,7 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throw new BadCredentialsException("Invalid JWT");
         } catch (BadCredentialsException badCredentialsException) {
             throw badCredentialsException;
-        } catch (Exception exception) {
+        } catch (MalformedJwtException exception) {
             throw exception;
         }
     }
