@@ -1,4 +1,4 @@
-package com.skcorp.skbank.card_service.entities;
+package com.skcorp.skbank.skb_common.entities.cards;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

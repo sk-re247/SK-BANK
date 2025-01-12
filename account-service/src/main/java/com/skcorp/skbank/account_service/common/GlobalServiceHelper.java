@@ -9,23 +9,24 @@ import com.skcorp.skbank.account_service.client.models.GenderEnum;
 import com.skcorp.skbank.account_service.client.models.JwtPayload;
 import com.skcorp.skbank.account_service.common.dtos.AccountNumberCustomerId;
 import com.skcorp.skbank.account_service.common.utils.JwtUtil;
-import com.skcorp.skbank.account_service.entities.AccountLoginHistory;
-import com.skcorp.skbank.account_service.entities.AccountSecurity;
-import com.skcorp.skbank.account_service.entities.projections.AbstractAccountNumber;
-import com.skcorp.skbank.account_service.entities.Account;
-import com.skcorp.skbank.account_service.entities.AccountLog;
-import com.skcorp.skbank.account_service.entities.AccountProof;
-import com.skcorp.skbank.account_service.entities.Address;
-import com.skcorp.skbank.account_service.entities.BranchNameAddressXref;
-import com.skcorp.skbank.account_service.entities.Customer;
 import com.skcorp.skbank.account_service.exceptions.AccountServiceException;
-import com.skcorp.skbank.account_service.repositories.AccountLogRepository;
-import com.skcorp.skbank.account_service.repositories.AccountLoginHistoryRepository;
-import com.skcorp.skbank.account_service.repositories.AccountProofRepository;
-import com.skcorp.skbank.account_service.repositories.AccountRepository;
-import com.skcorp.skbank.account_service.repositories.AccountSecurityRepository;
-import com.skcorp.skbank.account_service.repositories.BranchNameAddressXrefRepository;
+import com.skcorp.skbank.skb_common.entities.accounts.Account;
+import com.skcorp.skbank.skb_common.entities.accounts.AccountLog;
+import com.skcorp.skbank.skb_common.entities.accounts.AccountLoginHistory;
+import com.skcorp.skbank.skb_common.entities.accounts.AccountProof;
+import com.skcorp.skbank.skb_common.entities.accounts.AccountSecurity;
+import com.skcorp.skbank.skb_common.entities.accounts.Address;
+import com.skcorp.skbank.skb_common.entities.accounts.BranchNameAddressXref;
+import com.skcorp.skbank.skb_common.entities.accounts.Customer;
+import com.skcorp.skbank.skb_common.entities.accounts.projections.AbstractAccountNumber;
+import com.skcorp.skbank.skb_common.repositories.accounts.AccountLogRepository;
+import com.skcorp.skbank.skb_common.repositories.accounts.AccountLoginHistoryRepository;
+import com.skcorp.skbank.skb_common.repositories.accounts.AccountProofRepository;
+import com.skcorp.skbank.skb_common.repositories.accounts.AccountRepository;
+import com.skcorp.skbank.skb_common.repositories.accounts.AccountSecurityRepository;
+import com.skcorp.skbank.skb_common.repositories.accounts.BranchNameAddressXrefRepository;
 import jakarta.persistence.EntityManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,7 @@ public class GlobalServiceHelper {
 
     private final JwtUtil jwtUtil;
 
+    @Autowired
     public GlobalServiceHelper(
             BranchNameAddressXrefRepository branchNameAddressXrefRepository,
             AccountRepository accountRepository,

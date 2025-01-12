@@ -103,6 +103,11 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>com.skcorp.skbank</groupId>
+			<artifactId>skb-common</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

@@ -1,7 +1,7 @@
-package com.skcorp.skbank.account_service.repositories;
+package com.skcorp.skbank.skb_common.repositories.accounts;
 
-import com.skcorp.skbank.account_service.entities.projections.AbstractAccountNumber;
-import com.skcorp.skbank.account_service.entities.AccountLog;
+import com.skcorp.skbank.skb_common.entities.accounts.AccountLog;
+import com.skcorp.skbank.skb_common.entities.accounts.projections.AbstractAccountNumber;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

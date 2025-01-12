@@ -1,3 +1,8 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /AccountService
+
 spring:
   application:
     name: account-service
@@ -43,7 +48,7 @@ eureka:
     fetchRegistry: true
     registerWithEureka: true
     serviceUrl:
-      defaultZone: http://localhost:8081/EurekaServer/
+      defaultZone: http://localhost:8081/EurekaServer/eureka
 
 info:
   app:

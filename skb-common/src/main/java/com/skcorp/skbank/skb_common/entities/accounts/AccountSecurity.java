@@ -1,4 +1,4 @@
-package com.skcorp.skbank.account_service.entities;
+package com.skcorp.skbank.skb_common.entities.accounts;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -7,7 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,26 +15,32 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountLoginHistory {
+@Entity
+@Table
+public class AccountSecurity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id")
     private Account account;
 
+    private String password;
+
     @CreationTimestamp
-    private LocalDateTime loginTime;
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime modifiedAt;
 }

@@ -1,9 +1,9 @@
 package com.skcorp.skbank.account_service.security;
 
 import com.skcorp.skbank.account_service.common.GlobalServiceHelper;
-import com.skcorp.skbank.account_service.entities.AccountSecurity;
 import com.skcorp.skbank.account_service.exceptions.AccountServiceException;
-import com.skcorp.skbank.account_service.repositories.AccountSecurityRepository;
+import com.skcorp.skbank.skb_common.entities.accounts.AccountSecurity;
+import com.skcorp.skbank.skb_common.repositories.accounts.AccountSecurityRepository;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

@@ -1,4 +1,4 @@
-package com.skcorp.skbank.account_service.entities;
+package com.skcorp.skbank.skb_common.entities.accounts;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -7,35 +7,38 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class AccountLog {
+public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "account_id")
-    private Account account;
+    private String accountNumber;
 
-    private String status;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
-    private LocalDateTime updatedAt;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "branch_address_id")
+    private Address branchAddress;
+
+    private String type;
+
+    private Boolean isActive;
 }

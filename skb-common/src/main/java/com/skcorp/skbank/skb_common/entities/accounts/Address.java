@@ -1,4 +1,4 @@
-package com.skcorp.skbank.account_service.entities;
+package com.skcorp.skbank.skb_common.entities.accounts;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -1,6 +1,6 @@
-package com.skcorp.skbank.account_service.repositories;
+package com.skcorp.skbank.skb_common.repositories.accounts;
 
-import com.skcorp.skbank.account_service.entities.AccountProof;
+import com.skcorp.skbank.skb_common.entities.accounts.AccountProof;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
