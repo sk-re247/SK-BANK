@@ -1,11 +1,8 @@
-server:
-  port: 8080
-  servlet:
-    context-path: /AccountService
-
 spring:
   application:
     name: account-service
+  profiles:
+    active: default
 
   datasource:
     url: jdbc:mysql://localhost:3306/accounts?useSsl=false
@@ -20,6 +17,40 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
 
+  config:
+    import: optional:configserver:http://localhost:8080/ConfigServer/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+endpoints:
+  shutdown:
+    enabled: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8081/EurekaServer/
+
+info:
+  app:
+    name: account-service
+    description: SK Bank Account Application
+    version: 25.1.0
+
 datasource:
   hikari:
     maximum-pool-size: 10
@@ -27,10 +58,4 @@ datasource:
     idle-timeout: 30000
     max-lifetime: 1800000
     connection-timeout: 20000
-
-#springdoc:
-#  api-docs:
-#    path: /AccountService/v3/api-docs
-#  swagger-ui:
-#    path: /AccountService/swagger-ui.html
 

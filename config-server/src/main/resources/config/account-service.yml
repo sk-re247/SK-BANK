@@ -1,0 +1,15 @@
+build:
+  version: 25.1.0
+
+server:
+  port: 8082
+  servlet:
+    context-path: /AccountService
+
+account-service:
+  message: Welcome to SK Bank Accounts Related APIs
+  contactDetails:
+    name: Somukumar Ekambaram
+    email: somukumar.ekambaram@gmail.com
+  onCallSupport:
+    - +91 (866) 805-4236
