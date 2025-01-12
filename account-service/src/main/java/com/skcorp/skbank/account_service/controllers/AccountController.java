@@ -12,6 +12,7 @@ import com.skcorp.skbank.account_service.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -64,5 +65,13 @@ public class AccountController implements SkBankAccountsApi {
 
         response.setMessage("Customer password has been updated successfully");
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(path = "/account/holder-name")
+    public ResponseEntity<String> fetchAccountHolderName(@RequestParam String accountNumber, @RequestParam String mobileNumber) {
+
+        String cardHolderName = accountService.fetchAccountHolderName(accountNumber, mobileNumber);
+
+        return ResponseEntity.status(HttpStatus.OK).body(cardHolderName);
     }
 }

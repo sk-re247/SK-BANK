@@ -109,6 +109,10 @@ components:
           type: string
         cardType:
           $ref: '#/components/schemas/CardTypeEnum'
+        mobileumber:
+          type: string
+        scheme:
+          $ref: '#/components/schemas/CardSchemeEnum'
 
     CardResponse:
       type: object
@@ -118,7 +122,25 @@ components:
         cardHolderName:
           type: string
 
+    JwtPayload:
+      type: object
+      properties:
+        lastName:
+          type: string
+        accountNumber:
+          type: string
+        custId:
+          type: integer
+          format: int64
+        mobileNumber:
+          type: string
+        accountType:
+          type: string
 
     CardTypeEnum:
       type: string
       enum: [DEBIT, CREDIT]
+
+    CardSchemeEnum:
+      type: string
+      enum: [VISA, MASTER CARD, RUPAY]

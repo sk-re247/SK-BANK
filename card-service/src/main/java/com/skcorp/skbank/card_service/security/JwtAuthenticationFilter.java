@@ -1,6 +1,6 @@
-package com.skcorp.skbank.account_service.security;
+package com.skcorp.skbank.card_service.security;
 
-import com.skcorp.skbank.account_service.common.utils.JwtUtil;
+import com.skcorp.skbank.card_service.common.utils.JwtUtil;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

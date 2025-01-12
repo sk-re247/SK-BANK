@@ -9,6 +9,7 @@ import com.skcorp.skbank.account_service.client.models.AccountResponse;
 import com.skcorp.skbank.account_service.client.models.AccountUploadProofRequest;
 import com.skcorp.skbank.account_service.common.GlobalServiceHelper;
 import com.skcorp.skbank.account_service.exceptions.AccountServiceException;
+import com.skcorp.skbank.skb_common.entities.accounts.Customer;
 import com.skcorp.skbank.skb_common.repositories.accounts.AccountSecurityRepository;
 import com.skcorp.skbank.account_service.services.AccountService;
 import com.skcorp.skbank.skb_common.entities.accounts.Account;
@@ -113,6 +114,26 @@ public class AccountServiceImpl implements AccountService {
         } else {
             throw new AccountServiceException("Password length must between 10 to 15");
         }
+    }
+
+    @Override
+    public String fetchAccountHolderName(String accountNumber, String mobileNumber) {
+        String accountHolder = null;
+        try {
+            AccountLog accountLog = globalServiceHelper.checkAccountHasValidLog(accountNumber, "ACTIVATED", true);
+            Customer customer = accountLog.getAccount().getCustomer();
+            String customerMobile = customer.getMobileNumber();
+            if (mobileNumber.equals(customerMobile)) {
+                accountHolder = customer.getFirstName().trim() + " " + customer.getLastName().trim();
+            } else
+                throw new AccountServiceException("Invalid Mobile Number Provided");
+
+        } catch (AccountServiceException accountServiceException) {
+            throw accountServiceException;
+        } catch (Exception exception) {
+            throw new AccountServiceException("Failed to fetch account holder name");
+        }
+        return accountHolder;
     }
 
 }

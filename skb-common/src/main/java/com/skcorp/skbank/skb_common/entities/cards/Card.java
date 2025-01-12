@@ -50,4 +50,6 @@ public class Card {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    private String scheme;
 }

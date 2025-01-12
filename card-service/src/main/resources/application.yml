@@ -10,11 +10,10 @@ spring:
     active: default
 
   datasource:
-    cards:
-      url: jdbc:mysql://localhost:3306/cards?useSsl=false
-      username: admin
-      password: uD)19Jbs=#cVa?+
-      driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cards?useSsl=false
+    username: admin
+    password: uD)19Jbs=#cVa?+
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:

@@ -15,4 +15,6 @@ public interface AccountService {
     String uploadAccountProof(AccountUploadProofRequest request);
 
     void updateAccountSecurity(AccountAuthentication accountAuthentication);
+
+    String fetchAccountHolderName(String accountNumber, String mobileNumber);
 }
