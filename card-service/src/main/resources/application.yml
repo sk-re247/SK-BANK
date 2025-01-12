@@ -1,0 +1,36 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /CardService
+
+spring:
+  application:
+    name: card-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/cards?useSsl=false
+    username: admin
+    password: uD)19Jbs=#cVa?+
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+datasource:
+  hikari:
+    maximum-pool-size: 10
+    minimum-idle: 5
+    idle-timeout: 30000
+    max-lifetime: 1800000
+    connection-timeout: 20000
+
+#springdoc:
+#  api-docs:
+#    path: /AccountService/v3/api-docs
+#  swagger-ui:
+#    path: /AccountService/swagger-ui.html
+

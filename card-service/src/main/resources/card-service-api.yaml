@@ -1,0 +1,124 @@
+openapi: 3.0.3
+info:
+  title: Card Service API Documentation
+  description: Card Service API Documentation for Swagger Codegen
+  version: 25.1.0
+  contact:
+    name: "Somukumar"
+    email: "somukumar.ekambaram@gmail.com"
+
+servers:
+  - url: http://localhost:8081/CardService
+    description: Local server
+
+tags:
+  - name: SK-BANK-Cards
+    description: Everything about SK Bank Cards
+
+paths:
+  /card:
+    post:
+      operationId: addNewCard
+      summary: Add new card to existing account
+      tags:
+        - SK-BANK-Cards
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Request Body to add new card
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardRequest'
+
+      responses:
+        "201":
+          description: 201 CREATED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+        "400":
+          description: 400 BAD REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+        "401":
+          description: 401 UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+
+        "500":
+          description: 500 INTERNAL SERVER ERROR
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerErrorResponse'
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    BadRequestErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        message:
+          type: string
+          default: Invalid Request
+
+    UnauthorizedErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        message:
+          type: string
+          default: Unauthorized Request
+
+    InternalServerErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        message:
+          type: string
+          default: Internal Server Error
+
+    CardRequest:
+      type: object
+      required:
+        - accountNumber
+        - cardType
+      properties:
+        accountNumber:
+          type: string
+        cardType:
+          $ref: '#/components/schemas/CardTypeEnum'
+
+    CardResponse:
+      type: object
+      properties:
+        cardNumber:
+          type: string
+        cardHolderName:
+          type: string
+
+
+    CardTypeEnum:
+      type: string
+      enum: [DEBIT, CREDIT]
